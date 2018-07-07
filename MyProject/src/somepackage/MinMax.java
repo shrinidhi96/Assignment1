@@ -1,8 +1,12 @@
 package somepackage;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class MinMax {
+
+  public static int numberOfComparisons = 0;
 
   public static class Datum {
     int sensorId;
@@ -64,14 +68,14 @@ public class MinMax {
 
   /**
    * main function.
+   * 
+   * @throws IOException For file reader
+   * 
    */
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws IOException {
     int n = 0;
-    System.out.println("Enter the amount of data in the input buffer:");
-    Scanner s = new Scanner(System.in);
-    n = s.nextInt();
-    Datum[] inputBuffer = new Datum[n];
+    Datum[] inputBuffer = null;
     Datum[] outputBuffer = new Datum[2];
     int i = 0;
     int sensorId;
@@ -79,18 +83,21 @@ public class MinMax {
     float time;
     float temperature;
     char unit;
-    System.out.println("Feed the input buffer please!");
-    for (i = 0; i < n; i++) {
-      System.out.print("Sensor id:");
-      sensorId = s.nextInt();
-      System.out.print("Location:");
-      location = s.next();
-      System.out.print("Time:");
-      time = s.nextFloat();
-      System.out.print("Temperature:");
-      temperature = s.nextFloat();
-      System.out.print("Unit:");
-      unit = s.next().charAt(0);
+    String line;
+    String path = "C:\\Users\\JAYA\\Forgit\\Assignment1\\MyProject\\src\\somepackage\\obj.txt";
+    BufferedReader b = new BufferedReader(new FileReader(path));
+    while ((line = b.readLine()) != null) {
+      n++;
+    }
+    inputBuffer = new Datum[n];
+    BufferedReader br = new BufferedReader(new FileReader(path));
+    while ((line = br.readLine()) != null) {
+      String[] attributes = line.split("\\s+");
+      sensorId = Integer.parseInt(attributes[0]);
+      location = attributes[1];
+      time = Float.parseFloat(attributes[2]);
+      temperature = Float.parseFloat(attributes[3]);
+      unit = attributes[4].charAt(0);
       inputBuffer[i] = new Datum(sensorId, location, time, temperature, unit);
       if (unit == 'F') {
         inputBuffer[i].convertToCelsius();
@@ -100,14 +107,20 @@ public class MinMax {
         outputBuffer[1] = new Datum(sensorId, location, time, temperature, unit);
       }
       System.out.println();
-    }
-    outputBuffer = neuron(inputBuffer, n, outputBuffer);
-    System.out.println("\nMin:");
-    outputBuffer[0].printData();
-    System.out.println("\nMax:");
-    outputBuffer[1].printData();
-    s.close();
 
+      i++;
+    }
+    br.close();
+    b.close();
+
+    outputBuffer = neuron(inputBuffer, n, outputBuffer);
+    System.out.print("\nMin:");
+    outputBuffer[0].printData();
+    System.out.print("\nMax:");
+    outputBuffer[1].printData();
+    String toPrint =
+        "\nThe total number of comparisons for n = " + n + " is " + numberOfComparisons;
+    System.out.println(toPrint);
   }
 
   /**
@@ -117,34 +130,45 @@ public class MinMax {
     float t1;
     float t2;
     if (n > 0) {
+
       if (n == 1) {
+        numberOfComparisons += 1;
         t1 = inputBuffer[0].temperature;
         if (t1 < outputBuffer[0].temperature) {
+          numberOfComparisons += 1;
           outputBuffer[0].setOutputBuffer(inputBuffer, 0);
         }
         if (t1 > outputBuffer[1].temperature) {
+          numberOfComparisons += 1;
           outputBuffer[1].setOutputBuffer(inputBuffer, 0);
         }
         return outputBuffer;
       }
       if (n == 2) {
+        numberOfComparisons += 1;
         if (inputBuffer[0].temperature > inputBuffer[1].temperature) {
+          numberOfComparisons += 1;
           t1 = inputBuffer[1].temperature; // min
           t2 = inputBuffer[0].temperature; // max
           if (t1 < outputBuffer[0].temperature) {
+            numberOfComparisons += 1;
             outputBuffer[0].setOutputBuffer(inputBuffer, 1);
           }
           if (t2 > outputBuffer[1].temperature) {
+            numberOfComparisons += 1;
             outputBuffer[1].setOutputBuffer(inputBuffer, 0);
           }
 
         } else {
+          numberOfComparisons += 1;
           t1 = inputBuffer[0].temperature;
           t2 = inputBuffer[1].temperature;
           if (t1 < outputBuffer[0].temperature) {
+            numberOfComparisons += 1;
             outputBuffer[0].setOutputBuffer(inputBuffer, 0);
           }
           if (t2 > outputBuffer[1].temperature) {
+            numberOfComparisons += 1;
             outputBuffer[1].setOutputBuffer(inputBuffer, 1);
           }
         }
@@ -158,8 +182,23 @@ public class MinMax {
       }
       split1 = (int) Math.pow(2, i - 1);
       split2 = n - split1;
-      outputBuffer = neuron(inputBuffer, split1, outputBuffer);
-      outputBuffer = neuron(inputBuffer, split2, outputBuffer);
+      // split and copy
+      Datum[] tempInput1 = new Datum[split1];
+      Datum[] tempInput2 = new Datum[split2];
+      // copy from 0 to split1-1 and from split 1 to n-1 in temp1 and temp2 respectively
+      int index = 0;
+      int k = 0;
+      for (index = 0; index < split1; index++) {
+        // copy into tempInput1
+        tempInput1[index] = new Datum(-1, "", 0, -9, 'C'); // simply instantiating
+        tempInput1[index].setOutputBuffer(inputBuffer, index);
+      }
+      for (index = split1; index < n; index++) {
+        tempInput2[k] = new Datum(-1, "", 0, -9, 'C'); // simply instantiating
+        tempInput2[k++].setOutputBuffer(inputBuffer, index);
+      }
+      outputBuffer = neuron(tempInput1, split1, outputBuffer);
+      outputBuffer = neuron(tempInput2, split2, outputBuffer);
     } // end of if(n>0)
     return outputBuffer;
   }
