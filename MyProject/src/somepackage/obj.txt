@@ -1,0 +1,10 @@
+1 Chennai 12.45 37 C
+2 Madurai 12.54 32 C
+3 Kodaikanal 15.32 21 C
+4 Pittsburgh 06.37 -2.5 C
+5 Hyderabad 07.46 65 F
+6 NorthCarolina 09.50 10 C
+7 Tirupathi 11.45 29 C
+8 Nagapattinam 17.33 25 C
+9 Norway 11.45 -3.5 C
+10 Tirunelveli 14.32 30 C

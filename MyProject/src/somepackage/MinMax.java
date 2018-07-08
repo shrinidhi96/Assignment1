@@ -70,7 +70,6 @@ public class MinMax {
    * main function.
    * 
    * @throws IOException For file reader
-   * 
    */
 
   public static void main(String[] args) throws IOException {
@@ -130,7 +129,6 @@ public class MinMax {
     float t1;
     float t2;
     if (n > 0) {
-
       if (n == 1) {
         numberOfComparisons += 1;
         t1 = inputBuffer[0].temperature;
@@ -185,11 +183,9 @@ public class MinMax {
       // split and copy
       Datum[] tempInput1 = new Datum[split1];
       Datum[] tempInput2 = new Datum[split2];
-      // copy from 0 to split1-1 and from split 1 to n-1 in temp1 and temp2 respectively
       int index = 0;
       int k = 0;
       for (index = 0; index < split1; index++) {
-        // copy into tempInput1
         tempInput1[index] = new Datum(-1, "", 0, -9, 'C'); // simply instantiating
         tempInput1[index].setOutputBuffer(inputBuffer, index);
       }
